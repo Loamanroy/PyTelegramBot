@@ -4,9 +4,9 @@ from utils.db_api.db_telegrambot import db
 from utils.db_api.schemas.user import User
 
 
-async def add_user(user_id: int, name: str, update_name: str):
+async def add_user(user_id: int, name: str):
     try:
-        user = User(user_id=user_id, name=name, update_name=update_name)
+        user = User(user_id=user_id, name=name)
         await user.create()
     except UniqueViolationError:
         print('User not registered')

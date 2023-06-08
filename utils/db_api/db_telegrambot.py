@@ -1,56 +1,25 @@
-from typing import List
-
-from aiogram.utils.executor import Executor
-from gino import Gino
-from aiogram import Dispatcher
 import sqlalchemy as sa
-import datetime
 
-from loguru import logger
+engine = sa.create_engine("postgresql+psycopg2://postgres:admin@localhost/Telebot")
 
-from data import config
+connection = engine.connect()
 
-db = Gino()
+metadata = sa.MetaData()
 
+users = sa.Table('Users', metadata,
+                 sa.Column('user_id', sa.Integer, primary_key=True),
+                 sa.Column('name', sa.Text),
+                 sa.Column('birthdate', sa.Text)
+                 )
 
-class BaseModel(db.Model):
-    __abstract__ = True
+metadata.create_all(engine)
 
-    def __str__(self):
-        model = self.__class__.__name__
-        table: sa.Table = sa.inspect(self.__class__)
-        primary_key_columns: List[sa.Column] = table.primary_key.columns
-        values = {
-            column.name: getattr(self, self._column_name_map[column.name])
-            for column in primary_key_columns
-        }
-        values_str = " ".join(f"{name}={value!r}" for name, value in values.items())
-        return f"<{model} {values_str}>"
+insertion_query = users.insert().values([
+    {'name': 'Timur', 'birthdate': '13.10.1999'},
+    {'name': 'Anvar', 'birthdate': '12.10.1999'},
+    {'name': 'Arthur', 'birthdate': '11.10.1999'}
+])
 
-
-class TimedBaseModel(BaseModel):
-    __abstract__ = True
-    created_at = db.Column(db.DateTime(True), server_default=db.func.now())
-    updated_at = db.Column(
-        db.DateTime(True),
-        default=datetime.datetime.utcnow,
-        onupdate=datetime.datetime.utcnow,
-        server_default=db.func.now(),
-    )
-
-
-async def on_startup(dispatcher: Dispatcher):
-    logger.info("Setup PostgreSQL Connection")
-    await db.set_bind(config.POSTGRES_URI)
-
-
-async def on_shutdown(dispatcher: Dispatcher):
-    bind = db.pop_bind()
-    if bind:
-        logger.info("Close PostgreSQL Connection")
-        await bind.close()
-
-
-def setup(executor: Executor):
-    executor.on_startup(on_startup)
-    executor.on_shutdown(on_shutdown)
+select_all_query = sa.select([users])
+select_all_result = connection.execute(select_all_query)
+print(select_all_result.fetchall())
