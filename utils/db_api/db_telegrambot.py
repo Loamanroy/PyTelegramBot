@@ -1,25 +1,27 @@
-import sqlalchemy as sa
+import sqlalchemy as db
 
-engine = sa.create_engine("postgresql+psycopg2://postgres:admin@localhost/Telebot")
+engine = db.create_engine("postgresql+psycopg2://postgres:admin@localhost/Telebot")
 
 connection = engine.connect()
 
-metadata = sa.MetaData()
+metadata = db.MetaData()
 
-users = sa.Table('Users', metadata,
-                 sa.Column('user_id', sa.Integer, primary_key=True),
-                 sa.Column('name', sa.Text),
-                 sa.Column('birthdate', sa.Text)
+users = db.Table('Users', metadata,
+                 db.Column('user_id', db.Integer, primary_key=True),
+                 db.Column('name', db.Text),
+                 db.Column('birthdate', db.Text),
+                 db.Column('text', db.Text),
+                 db.Column('telegram_id', db.Integer)
                  )
 
 metadata.create_all(engine)
 
 insertion_query = users.insert().values([
-    {'name': 'Timur', 'birthdate': '13.10.1999'},
-    {'name': 'Anvar', 'birthdate': '12.10.1999'},
-    {'name': 'Arthur', 'birthdate': '11.10.1999'}
+    {'telegram_id': '1231234512', 'name': 'Timur', 'birthdate': '13.10.1999', 'text': " grgsdbgsdgsgsegser"},
+    {'telegram_id': '213412', 'name': 'Timur', 'birthdate': '13.10.1999', 'text': " grgsgweghswehgswdbgsdgsgsegser"},
+    {'telegram_id': '5236236', 'name': 'Timur', 'birthdate': '13.10.1999', 'text': " fwefwefwe"},
 ])
-
-select_all_query = sa.select([users])
+connection.execute(insertion_query)
+select_all_query = db.select([users])
 select_all_result = connection.execute(select_all_query)
 print(select_all_result.fetchall())
