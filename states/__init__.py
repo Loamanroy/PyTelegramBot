@@ -1,1 +1,1 @@
-from .test import register, accept
+from .test import accept

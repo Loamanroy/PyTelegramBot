@@ -10,6 +10,7 @@ users = db.Table('Users', metadata,
                  db.Column('user_id', db.Integer, primary_key=True),
                  db.Column('name', db.Text),
                  db.Column('birthdate', db.Text),
+                 db.Column('phone_number', db.Text),
                  db.Column('text', db.Text),
                  db.Column('telegram_id', db.Integer)
                  )
