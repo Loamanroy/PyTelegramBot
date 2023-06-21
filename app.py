@@ -1,6 +1,3 @@
-from loader import dp
-
-
 async def on_startup(dp):
     import filters
     filters.setup(dp)
